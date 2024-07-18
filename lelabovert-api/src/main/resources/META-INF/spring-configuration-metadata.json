@@ -1,0 +1,7 @@
+{"properties": [
+  {
+    "name": "lelabovert.images",
+    "type": "java.lang.String",
+    "description": "The path for images"
+  }
+]}
