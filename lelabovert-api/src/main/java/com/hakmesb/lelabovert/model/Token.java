@@ -17,7 +17,9 @@ public class Token {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private int id;
 	
-	private String token;
+	private String accessToken;
+	
+	private String refreshToken;
 	
 	@Column(name="is_logged_out")
 	private boolean loggedOut;

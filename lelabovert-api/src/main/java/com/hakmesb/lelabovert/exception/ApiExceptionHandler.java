@@ -26,6 +26,13 @@ public class ApiExceptionHandler {
 		return new ResponseEntity<ApiResponse>(res, HttpStatus.NOT_FOUND);
 	}
 	
+	@ExceptionHandler(UnauthorizedException.class)
+	public ResponseEntity<ApiResponse> handleUnauthorizedException(UnauthorizedException e){
+		String message = e.getMessage();
 	
+		ApiResponse res = new ApiResponse(message, HttpStatus.UNAUTHORIZED);
+		
+		return new ResponseEntity<ApiResponse>(res, HttpStatus.UNAUTHORIZED);
+	}
 	
 }

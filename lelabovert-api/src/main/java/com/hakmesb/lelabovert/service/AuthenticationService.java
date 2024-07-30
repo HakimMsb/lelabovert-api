@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import com.hakmesb.lelabovert.config.security.JwtService;
 import com.hakmesb.lelabovert.exception.ApiException;
 import com.hakmesb.lelabovert.exception.ResourceNotFoundException;
+import com.hakmesb.lelabovert.exception.UnauthorizedException;
 import com.hakmesb.lelabovert.model.Account;
 import com.hakmesb.lelabovert.model.Cart;
 import com.hakmesb.lelabovert.model.Customer;
@@ -29,6 +31,9 @@ import com.hakmesb.lelabovert.repository.CartRepository;
 import com.hakmesb.lelabovert.repository.CustomerRepository;
 import com.hakmesb.lelabovert.repository.RoleRepository;
 import com.hakmesb.lelabovert.repository.TokenRepository;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Service
 public class AuthenticationService {
@@ -91,11 +96,12 @@ public class AuthenticationService {
 		cart.setTotalAmount(0.0f);
 		cart = cartRepository.save(cart);
 		
-		String tokenString = jwtService.generateToken(account);
+		String accessToken = jwtService.generateAccessToken(account);
+		String refreshToken = jwtService.generateRefreshToken(account);
 		
-		saveAccountToken(account, tokenString);
+		saveAccountToken(account, accessToken, refreshToken);
 		
-		return new AuthenticationResponse(tokenString);
+		return new AuthenticationResponse(accessToken, refreshToken);
 	}
 	
 	public AuthenticationResponse authenticate(LoginRequest request) {
@@ -113,18 +119,20 @@ public class AuthenticationService {
 		Account account = accountRepository.findByEmail(request.email())
 				.orElseThrow(() -> new UsernameNotFoundException("User with email'" + request.email() + "' not found"));
 		
-		String tokenString = jwtService.generateToken(account);
+		String accessToken = jwtService.generateAccessToken(account);
+		String refreshToken = jwtService.generateRefreshToken(account);
 		
 		revokeAllTokensByAccount(account);
 		
-		saveAccountToken(account, tokenString);
+		saveAccountToken(account, accessToken, refreshToken);
 		
-		return new AuthenticationResponse(tokenString);
+		return new AuthenticationResponse(accessToken, refreshToken);
 	}
 	
-	private void saveAccountToken(Account account, String tokenString) {
+	private void saveAccountToken(Account account, String accessToken, String refreshToken) {
 		Token token = new Token();
-		token.setToken(tokenString);
+		token.setAccessToken(accessToken);
+		token.setRefreshToken(refreshToken);
 		token.setLoggedOut(false);
 		token.setAccount(account);
 		tokenRepository.save(token);
@@ -138,6 +146,34 @@ public class AuthenticationService {
 		}
 		
 		tokenRepository.saveAll(validTokenListByUser);
+	}
+
+	public AuthenticationResponse refreshToken(HttpServletRequest request, HttpServletResponse response) {
+		String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+		
+		if(authHeader == null || !authHeader.startsWith("Bearer ")) {
+			throw new ApiException("Invalid authorization header");
+		}
+		
+		String token = authHeader.substring(7);
+		
+		String accountEmail = jwtService.extractEmail(token);
+		
+		Account account = accountRepository.findByEmail(accountEmail)
+				.orElseThrow(() -> new UsernameNotFoundException("No account found"));
+		
+		if(jwtService.isRefreshTokenValid(token, account)) {
+			String accessToken = jwtService.generateAccessToken(account);
+			String refreshToken = jwtService.generateRefreshToken(account);
+			
+			revokeAllTokensByAccount(account);
+			
+			saveAccountToken(account, accessToken, refreshToken);
+			
+			return new AuthenticationResponse(accessToken, refreshToken);
+		}
+		
+		throw new UnauthorizedException("Invalid refresh token");
 	}
 	
 }

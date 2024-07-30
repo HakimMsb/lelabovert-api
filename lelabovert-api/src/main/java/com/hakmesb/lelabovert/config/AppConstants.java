@@ -2,7 +2,8 @@ package com.hakmesb.lelabovert.config;
 
 public class AppConstants {
 	
-	public static final String[] PUBLIC_URLS = {"/api/v1/login/**", "/api/v1/register/**", "/api/v1/public/**"};
+	public static final String[] PUBLIC_URLS = {"/api/v1/login/**", "/api/v1/register/**", "/api/v1/public/**",
+			"/api/v1/refresh-token"};
 	public static final String[] USER_URLS = {"/api/v1/user/**", "/api/v1/logout"};
 	public static final String[] ADMIN_URLS = {"/api/v1/admin/**"};
 

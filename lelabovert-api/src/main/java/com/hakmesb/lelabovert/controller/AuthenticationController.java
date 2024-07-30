@@ -12,6 +12,9 @@ import com.hakmesb.lelabovert.payload.LoginRequest;
 import com.hakmesb.lelabovert.payload.RegistrationRequest;
 import com.hakmesb.lelabovert.service.AuthenticationService;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 @RequestMapping("/api/v1")
 @RestController
 public class AuthenticationController {
@@ -30,6 +33,14 @@ public class AuthenticationController {
 	@PostMapping("/login")
 	public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginRequest request){
 		return ResponseEntity.ok(authenticationService.authenticate(request));
+	}
+	
+	@PostMapping("/refresh-token")
+	public ResponseEntity<AuthenticationResponse> refreshToken(
+			HttpServletRequest request,
+			HttpServletResponse response
+			){
+		return ResponseEntity.ok(authenticationService.refreshToken(request, response));
 	}
 	
 	@GetMapping("/logout")

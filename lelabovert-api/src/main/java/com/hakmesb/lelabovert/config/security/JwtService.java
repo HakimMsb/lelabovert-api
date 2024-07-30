@@ -5,6 +5,7 @@ import java.util.function.Function;
 
 import javax.crypto.SecretKey;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -19,19 +20,35 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtService {
 
-	private final String SECRET_KEY = "551ed7a82c17c347c1869a8c68b9511f9a7726913207aacec7af1bd700b6a249";
+	@Value("${lelabovert.security.jwt.secret-key}")
+	private String secretKey;
+	
+	@Value("${lelabovert.security.jwt.access-token-expiration}")
+	private long accessTokenExpiration;
+	
+	@Value("${lelabovert.security.jwt.refresh-token-expiration}")
+	private long refreshTokenExpiration;
+	
 	private final TokenRepository tokenRepository;
 	
 	public JwtService(TokenRepository tokenRepository) {
 		this.tokenRepository = tokenRepository;
 	}
 	
-	public String generateToken(Account account) {
+	public String generateAccessToken(Account account) {
+		return generateToken(account, accessTokenExpiration);
+	}
+	
+	public String generateRefreshToken(Account account) {
+		return generateToken(account, refreshTokenExpiration);
+	}
+	
+	public String generateToken(Account account, long expirationTime) {
 		String token = Jwts
 				.builder()
 				.subject(account.getEmail())
 				.issuedAt(new Date(System.currentTimeMillis()))
-				.expiration(new Date(System.currentTimeMillis() + 24*60*60*1000))
+				.expiration(new Date(System.currentTimeMillis() + expirationTime))
 				.signWith(getSigningKey())
 				.compact();
 		
@@ -39,7 +56,7 @@ public class JwtService {
 	}
 	
 	private SecretKey getSigningKey() {
-		byte[] keyBytes = Decoders.BASE64URL.decode(SECRET_KEY);
+		byte[] keyBytes = Decoders.BASE64URL.decode(secretKey);
 		
 		return Keys.hmacShaKeyFor(keyBytes);
 	}
@@ -64,11 +81,20 @@ public class JwtService {
 		return extractClaim(token, Claims::getSubject);
 	}
 	
-	public boolean isValid(String token, UserDetails account) {
-		String email = extractEmail(token);
-		boolean isValidToken = tokenRepository.findByToken(token).map(t -> !t.isLoggedOut()).orElse(false);
+	public boolean isAccessTokenValid(String accessToken, UserDetails account) {
+		String email = extractEmail(accessToken);
+		boolean isValidAccessToken = tokenRepository.findByAccessToken(accessToken)
+				.map(t -> !t.isLoggedOut()).orElse(false);
 		
-		return (email.equals(account.getUsername())) && !isTokenExpired(token) && isValidToken;
+		return (email.equals(account.getUsername())) && !isTokenExpired(accessToken) && isValidAccessToken;
+	}
+	
+	public boolean isRefreshTokenValid(String token, Account account) {
+		String email = extractEmail(token);
+		boolean isValidRefreshToken = tokenRepository.findByRefreshToken(token)
+				.map(t -> !t.isLoggedOut()).orElse(false);
+		
+		return (email.equals(account.getUsername())) && !isTokenExpired(token) && isValidRefreshToken;
 	}
 
 	private boolean isTokenExpired(String token) {
