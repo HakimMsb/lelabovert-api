@@ -89,12 +89,12 @@ public class JwtService {
 		return (email.equals(account.getUsername())) && !isTokenExpired(accessToken) && isValidAccessToken;
 	}
 	
-	public boolean isRefreshTokenValid(String token, Account account) {
-		String email = extractEmail(token);
-		boolean isValidRefreshToken = tokenRepository.findByRefreshToken(token)
+	public boolean isRefreshTokenValid(String refreshToken, Account account) {
+		String email = extractEmail(refreshToken);
+		boolean isValidRefreshToken = tokenRepository.findByRefreshToken(refreshToken)
 				.map(t -> !t.isLoggedOut()).orElse(false);
 		
-		return (email.equals(account.getUsername())) && !isTokenExpired(token) && isValidRefreshToken;
+		return (email.equals(account.getUsername())) && !isTokenExpired(refreshToken) && isValidRefreshToken;
 	}
 
 	private boolean isTokenExpired(String token) {

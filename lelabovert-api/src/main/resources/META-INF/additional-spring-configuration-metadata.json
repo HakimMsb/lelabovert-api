@@ -13,5 +13,10 @@
     "name": "lelabovert.security.jwt.refresh-token-expiration",
     "type": "java.lang.String",
     "description": "A description for 'lelabovert.security.jwt.refresh-token-expiration'"
+  },
+  {
+    "name": "lelabovert.images",
+    "type": "java.lang.String",
+    "description": "A description for 'lelabovert.images'"
   }
 ]}
