@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.hakmesb.lelabovert.model.Category;
 import com.hakmesb.lelabovert.payload.CategoryDto;
+import com.hakmesb.lelabovert.payload.UpdateCategoryRequest;
 import com.hakmesb.lelabovert.service.CategoryService;
 
 @RequestMapping("/api/v1")
@@ -59,8 +60,8 @@ public class CategoryController {
 	}
 	
 	@PutMapping("/admin/category/{categoryId}")
-	public ResponseEntity<CategoryDto> updateCategory(@RequestBody Category category, @PathVariable Integer categoryId){
-		CategoryDto categoryDto = categoryService.updateCategory(category, categoryId);
+	public ResponseEntity<CategoryDto> updateCategory(@RequestBody UpdateCategoryRequest request, @PathVariable Integer categoryId){
+		CategoryDto categoryDto = categoryService.updateCategory(request, categoryId);
 		
 		return new ResponseEntity<CategoryDto>(categoryDto, HttpStatus.OK);
 	}

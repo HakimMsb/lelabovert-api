@@ -26,6 +26,7 @@ import com.hakmesb.lelabovert.model.Token;
 import com.hakmesb.lelabovert.payload.AuthenticationResponse;
 import com.hakmesb.lelabovert.payload.LoginRequest;
 import com.hakmesb.lelabovert.payload.RegistrationRequest;
+import com.hakmesb.lelabovert.payload.RoleDto;
 import com.hakmesb.lelabovert.repository.AccountRepository;
 import com.hakmesb.lelabovert.repository.CartRepository;
 import com.hakmesb.lelabovert.repository.CustomerRepository;
@@ -81,9 +82,9 @@ public class AuthenticationService {
 			List<Role> rolesSet = Arrays.asList(roleRepository.findOneByName(Roles.USER.toString()).get());
 			account.setRolesSet(rolesSet);
 		}else {
-			List<Role> requestRolesSet = request.roles().get();
-			List<Role> dbRolesSet = requestRolesSet.stream().map(role -> roleRepository.findOneByName(role.getName())
-					.orElseThrow(() -> new ResourceNotFoundException("Role", "roleName", role.getName())))
+			List<RoleDto> requestRolesSet = request.roles().get();
+			List<Role> dbRolesSet = requestRolesSet.stream().map(role -> roleRepository.findOneByName(role.roleName())
+					.orElseThrow(() -> new ResourceNotFoundException("Role", "roleName", role.roleName())))
 					.collect(Collectors.toList());
 			
 			account.setRolesSet(dbRolesSet);	

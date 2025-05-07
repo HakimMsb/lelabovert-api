@@ -27,9 +27,9 @@ public class CartController {
 	
 	@GetMapping("/user/cart")
 	public ResponseEntity<CartDto> getCart(Authentication authentication){
-		Account account = (Account) authentication.getPrincipal();
+		Integer accountId = ((Account) authentication.getPrincipal()).getId();
 		
-		CartDto cartDto = cartService.getCart(account.getId());
+		CartDto cartDto = cartService.getCart(accountId);
 		
 		return new ResponseEntity<CartDto>(cartDto, HttpStatus.OK);
 	}

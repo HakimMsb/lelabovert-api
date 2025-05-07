@@ -12,6 +12,7 @@ import com.hakmesb.lelabovert.exception.ApiException;
 import com.hakmesb.lelabovert.exception.ResourceNotFoundException;
 import com.hakmesb.lelabovert.model.Category;
 import com.hakmesb.lelabovert.payload.CategoryDto;
+import com.hakmesb.lelabovert.payload.UpdateCategoryRequest;
 import com.hakmesb.lelabovert.payload.mapper.CategoryDtoMapper;
 import com.hakmesb.lelabovert.repository.CategoryRepository;
 import com.hakmesb.lelabovert.util.Slugify;
@@ -70,9 +71,13 @@ public class CategoryService {
 		return categories.stream().map(categoryDtoMapper).collect(Collectors.toList());
 	}
 	
-	public CategoryDto updateCategory(Category category, Integer categoryId) {
+	public CategoryDto updateCategory(UpdateCategoryRequest request, Integer categoryId) {
 		Category dbCategory = categoryRepository.findById(categoryId)
 				.orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
+		
+		Category category = new Category();
+		category.setName(request.name());
+		category.setDescription(request.description());
 		
 		category.setId(dbCategory.getId());
 		category.setImage(dbCategory.getImage());

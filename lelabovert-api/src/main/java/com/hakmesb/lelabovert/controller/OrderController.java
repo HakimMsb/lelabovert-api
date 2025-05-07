@@ -40,43 +40,37 @@ public class OrderController {
 			@RequestParam(defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder) {
 		OrderResponse orderResponse = orderService.getAllOrders(pageNumber, pageSize, sortBy, sortOrder);
 
-		return new ResponseEntity<OrderResponse>(orderResponse, HttpStatus.FOUND);
+		return new ResponseEntity<OrderResponse>(orderResponse, HttpStatus.OK);
 	}
 
 	@PostMapping("/user/cart/{cartId}/order")
 	public ResponseEntity<OrderDto> placeOrderWithAccount(@PathVariable Integer cartId,
 			Authentication authentication) {
-		Account account = (Account) authentication.getPrincipal();
-		
-		OrderDto orderDto = orderService.placeOrderWithAccount(account, cartId);
+		OrderDto orderDto = orderService.placeOrderWithAccount((Account) authentication.getPrincipal(), cartId);
 		
 		return new ResponseEntity<OrderDto>(orderDto, HttpStatus.CREATED);
 	}
 	
 	@GetMapping("/user/orders")
 	public ResponseEntity<List<OrderDto>> getOrdersByAccount(Authentication authentication){
-		Account account = (Account) authentication.getPrincipal();
+		List<OrderDto> orderDtos = orderService.getOrdersByAccount((Account) authentication.getPrincipal());
 		
-		List<OrderDto> orderDtos = orderService.getOrdersByAccount(account);
-		
-		return new ResponseEntity<List<OrderDto>>(orderDtos, HttpStatus.FOUND);
+		return new ResponseEntity<List<OrderDto>>(orderDtos, HttpStatus.OK);
 	}
 	
 	@GetMapping("/user/order/{orderId}")
 	public ResponseEntity<OrderDto> getOrderWithUser(@PathVariable Integer orderId,
 			Authentication authentication){
-		Account account = (Account) authentication.getPrincipal();
+		OrderDto orderDto = orderService.getOrder((Account) authentication.getPrincipal(), orderId);
 		
-		OrderDto orderDto = orderService.getOrder(account, orderId);
-		
-		return new ResponseEntity<OrderDto>(orderDto, HttpStatus.FOUND);
+		return new ResponseEntity<OrderDto>(orderDto, HttpStatus.OK);
 	}
 	
 	@GetMapping("/admin/order/{orderId}")
 	public ResponseEntity<OrderDto> getOrderWithAdmin(@PathVariable Integer orderId){
 		OrderDto orderDto = orderService.getOrder(orderId);
 		
-		return new ResponseEntity<OrderDto>(orderDto, HttpStatus.FOUND);
+		return new ResponseEntity<OrderDto>(orderDto, HttpStatus.OK);
 	}
 	
 	@PutMapping("/admin/order/{orderId}/status")

@@ -42,9 +42,9 @@ public class AccountController {
 	
 	@GetMapping("/user/account")
 	public ResponseEntity<AccountDto> getAuthenticatedAccount(Authentication authentication){
-		Account account = (Account) authentication.getPrincipal();
+		Integer accountId = ((Account) authentication.getPrincipal()).getId();
 		
-		AccountDto accountDto = accountDetailsService.getAccountById(account.getId());
+		AccountDto accountDto = accountDetailsService.getAccountById(accountId);
 		
 		return new ResponseEntity<AccountDto>(accountDto, HttpStatus.OK);
 	}
@@ -52,9 +52,9 @@ public class AccountController {
 	@PutMapping("/user/account/password")
 	public ResponseEntity<AccountDto> changePassword(@RequestBody ChangePasswordRequest request,
 			Authentication authentication){
-		Account account = (Account) authentication.getPrincipal();
+		Integer accountId = ((Account) authentication.getPrincipal()).getId();
 		
-		AccountDto accountDto = accountDetailsService.changePassword(account.getId(), request.oldPassword(), request.newPassword());
+		AccountDto accountDto = accountDetailsService.changePassword(accountId, request.oldPassword(), request.newPassword());
 		
 		return new ResponseEntity<AccountDto>(accountDto, HttpStatus.OK);
 	}

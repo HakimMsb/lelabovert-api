@@ -25,7 +25,7 @@ public class CustomerController {
 	}
 	
 	@PostMapping("/public/customer")
-	public ResponseEntity<CustomerDto> addOrUpdateCustomer(@RequestBody AddOrUpdateCustomerRequest request, Authentication authentication){
+	public ResponseEntity<AddOrUpdateCustomerResponse> addOrUpdateCustomer(@RequestBody AddOrUpdateCustomerRequest request, Authentication authentication){
 		AddOrUpdateCustomerResponse response;
 		
 		if (authentication != null && authentication.isAuthenticated()) {
@@ -36,7 +36,7 @@ public class CustomerController {
 		
 		HttpStatus status = response.isCreated() ? HttpStatus.CREATED : HttpStatus.OK;
 		
-		return new ResponseEntity<CustomerDto>(response.customerDto(), status);
+		return new ResponseEntity<AddOrUpdateCustomerResponse>(response, status);
 	}
 
 }

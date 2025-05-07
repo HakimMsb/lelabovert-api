@@ -16,6 +16,7 @@ import com.hakmesb.lelabovert.exception.ApiException;
 import com.hakmesb.lelabovert.exception.ResourceNotFoundException;
 import com.hakmesb.lelabovert.model.Category;
 import com.hakmesb.lelabovert.model.Product;
+import com.hakmesb.lelabovert.payload.AddOrUpdateProductRequest;
 import com.hakmesb.lelabovert.payload.ProductDto;
 import com.hakmesb.lelabovert.payload.ProductResponse;
 import com.hakmesb.lelabovert.payload.mapper.ProductDtoMapper;
@@ -42,7 +43,7 @@ public class ProductService {
 		this.cartService = cartService;
 	}
 
-	public ProductDto addProduct(Integer categoryId, Product product){
+	public ProductDto addProduct(Integer categoryId, AddOrUpdateProductRequest request){
 		Category category = categoryRepository.findById(categoryId)
 				.orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
@@ -51,14 +52,19 @@ public class ProductService {
 		List<Product> products = category.getProducts();
 
 		for (int i = 0; i < products.size(); i++) {
-			if (products.get(i).getName().equals(product.getName())
-					&& products.get(i).getDescription().equals(product.getDescription())) {
+			if (products.get(i).getName().equals(request.name())
+					&& products.get(i).getDescription().equals(request.description())) {
 				isProductNotPresent = false;
 				break;
 			}
 		}
 		
 		if(isProductNotPresent) {
+			Product product = new Product();
+			product.setName(request.name());
+			product.setDescription(request.description());
+			product.setPrice(request.price());
+			
 			product.setCategory(category);
 			
 			String slug = Slugify.toSlug(product.getName());
@@ -140,11 +146,16 @@ public class ProductService {
 				productsPage.getTotalPages(), productsPage.isLast());
 	}
 	
-	public ProductDto updateProduct(Product product, Integer productId) {
+	public ProductDto updateProduct(AddOrUpdateProductRequest request, Integer productId) {
 		Product dbProduct = productRepository.findById(productId)
 				.orElseThrow(() -> new ResourceNotFoundException("Product", "productId", productId));
 		
 		Float oldPrice = dbProduct.getPrice();
+		
+		Product product = new Product();
+		product.setName(request.name());
+		product.setDescription(request.description());
+		product.setPrice(request.price());
 		
 		product.setId(dbProduct.getId());
 		product.setCategory(dbProduct.getCategory());

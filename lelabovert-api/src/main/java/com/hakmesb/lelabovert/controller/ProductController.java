@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.hakmesb.lelabovert.config.AppConstants;
-import com.hakmesb.lelabovert.model.Product;
+import com.hakmesb.lelabovert.payload.AddOrUpdateProductRequest;
 import com.hakmesb.lelabovert.payload.ProductDto;
 import com.hakmesb.lelabovert.payload.ProductResponse;
 import com.hakmesb.lelabovert.service.FileService;
@@ -45,8 +45,8 @@ public class ProductController {
 	}
 	
 	@PostMapping("/admin/category/{categoryId}/product")
-	public ResponseEntity<ProductDto> addProduct(@RequestBody Product product, @PathVariable Integer categoryId){
-		ProductDto dbProductDto = productService.addProduct(categoryId, product);
+	public ResponseEntity<ProductDto> addProduct(@RequestBody AddOrUpdateProductRequest request, @PathVariable Integer categoryId){
+		ProductDto dbProductDto = productService.addProduct(categoryId, request);
 		
 		return new ResponseEntity<ProductDto>(dbProductDto, HttpStatus.CREATED);
 	}
@@ -99,8 +99,8 @@ public class ProductController {
 	}
 	
 	@PutMapping("/admin/products/{productId}")
-	public ResponseEntity<ProductDto> updateProduct(@RequestBody Product product, @PathVariable Integer productId){
-		ProductDto productDto = productService.updateProduct(product, productId);
+	public ResponseEntity<ProductDto> updateProduct(@RequestBody AddOrUpdateProductRequest request, @PathVariable Integer productId){
+		ProductDto productDto = productService.updateProduct(request, productId);
 		
 		return new ResponseEntity<ProductDto>(productDto, HttpStatus.OK);
 	}

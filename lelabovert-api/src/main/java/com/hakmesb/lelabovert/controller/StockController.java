@@ -33,7 +33,7 @@ public class StockController {
 			@RequestParam(defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder){
 		StocksResponse stocksResponse = stockService.getStocks(pageNumber, pageSize, sortBy, sortOrder);
 		
-		return new ResponseEntity<StocksResponse>(stocksResponse, HttpStatus.FOUND);
+		return new ResponseEntity<StocksResponse>(stocksResponse, HttpStatus.OK);
 	}
 	
 	@GetMapping("/admin/sales")
@@ -44,7 +44,7 @@ public class StockController {
 			@RequestParam(defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder){
 		SalesResponse salesResponse = stockService.getSales(pageNumber, pageSize, sortBy, sortOrder);
 		
-		return new ResponseEntity<SalesResponse>(salesResponse, HttpStatus.FOUND);
+		return new ResponseEntity<SalesResponse>(salesResponse, HttpStatus.OK);
 	}
 	
 	@PostMapping("/admin/product/{productId}/stock/{quantity}")
